@@ -9,6 +9,8 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.filter.*;
+import org.apache.hadoop.hbase.util.AtomicUtils;
+import org.apache.zookeeper.Transaction;
 import until.HBaseCon;
 
 import java.io.IOException;
@@ -24,6 +26,17 @@ public class RelationService {
         hBaseCon = new HBaseCon();
         connection = hBaseCon.getConnection();
         crud = new RelationDAO(connection);
+    }
+
+    public boolean dounfollow(String id, String followId){
+        try {
+            crud.delete(id,"follow",followId);
+            crud.delete(followId,"fans",id);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public TreeMap<String,String> getUserBaseInfo(String id){
@@ -54,9 +67,11 @@ public class RelationService {
             if (result != null) {
                 Cell[] cells = result.rawCells();
                 for (Cell cell : cells) {
-                    String userId = new String(CellUtil.cloneRow(cell));
+                    String userId = new String(CellUtil.cloneQualifier(cell));
                     String userName = new String(CellUtil.cloneValue(cell));
-                    followMap.put(userId, userName);
+                    if(!userId.equals("name")){
+                        followMap.put(userId, userName);
+                    }
                 }
             }else {
                 followMap.put("","");

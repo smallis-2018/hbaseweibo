@@ -5,7 +5,17 @@
     TreeMap<String, String> followMap = (TreeMap<String, String>) request.getAttribute("followMap");
     TreeMap<String, String> fansMap = (TreeMap<String, String>) request.getAttribute("fansMap");
     TreeMap<String, String> strangerMap = (TreeMap<String, String>) request.getAttribute("strangerMap");
-%>
+
+    String check = (String) request.getAttribute("check");
+    String userId = "";
+    String userName = "";
+
+    if (infoMap != null) {
+        String key = infoMap.keySet().iterator().next();
+        userId = key;
+        userName = infoMap.get(key);
+    }
+    %>
 <html>
 <head>
     <title>主页</title>
@@ -13,13 +23,7 @@
 <body>
 <div style="float:right;margin-left: 25px;margin-right: 25px;">
     <p>用户名：
-    <%
-        if (infoMap != null) {
-            for (String s : infoMap.keySet()) {
-                out.print(infoMap.get(s));
-            }
-        }
-    %>
+    <%=userName%>
     </p>
 </div>
 <div style="float:left;margin-left: 25px;margin-right: 25px;">
@@ -30,9 +34,9 @@
                 for (String s : followMap.keySet()) {
         %>
         <li><%out.print(followMap.get(s));%></li>
-        <from action="home?do=qxgz" method="post">
-            <button name="qxgz" value=<%=s%> type="submit">取消关注</button>
-        </from>
+        <form action="home?do=unfollow&id=<%=userId%>" method="post">
+            <button name="followId" value=<%=s%> type="submit">取消关注</button>
+        </form>
         <%
                 }
             }
@@ -68,5 +72,14 @@
         %>
     </ol>
 </div>
+<%
+    if(check!=null){
+%>
+<script type="text/javascript">
+    alert("<%=check%>");
+</script>
+<%
+    }
+%>
 </body>
 </html>

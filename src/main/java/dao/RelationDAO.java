@@ -78,4 +78,13 @@ public class RelationDAO {
         Delete delete = new Delete(rowKey.getBytes());
         table.delete(delete);
     }
+
+    public void delete(String rowKey, String familyName, String columnName) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        Delete delete = new Delete(rowKey.getBytes());
+        delete.addColumn(familyName.getBytes(), columnName.getBytes());
+        table.delete(delete);
+    }
+
+
 }
