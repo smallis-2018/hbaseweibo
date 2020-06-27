@@ -108,22 +108,36 @@ public class RelationService {
     //TODO 实现陌生人列表（即没有关注的人）
     public TreeMap<String, String> getStranger(String id) {
         TreeMap<String,String> strangerMap = new TreeMap<String, String>();
-        Filter filter = new QualifierFilter(
+        TreeMap<String,String> followMap;
+        //获取关注列表
+        followMap = getFollow(id);
+        //设置个AND过滤器表
+        FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+        //将关注列表里的ID都加入行键过滤器
+        for(String s : followMap.keySet()){
+            Filter filter = new RowFilter(
+                    CompareOperator.NOT_EQUAL,
+                    new BinaryComparator(s.getBytes())
+            );
+            filterList.addFilter(filter);
+        }
+
+        //把自己的ID也放进过滤器
+        Filter filter = new RowFilter(
                 CompareOperator.NOT_EQUAL,
                 new BinaryComparator(id.getBytes())
         );
-        try {
-            ResultScanner resultScanner = crud.scan(filter);
+        filterList.addFilter(filter);
 
+        try {
+            ResultScanner resultScanner = crud.scan(filterList, "base", "name");
             if (resultScanner != null) {
                 for (Result result:resultScanner){
                     Cell[] cells = result.rawCells();
                     for (Cell cell : cells) {
-                        String getid = new String(CellUtil.cloneQualifier(cell));
+                        String getid = new String(CellUtil.cloneRow(cell));
                         String getName = new String(CellUtil.cloneValue(cell));
-                        if(!getid.equals("name")){
-                            strangerMap.put(getid,getName);
-                        }
+                        strangerMap.put(getid,getName);
                     }
                 }
             }else {

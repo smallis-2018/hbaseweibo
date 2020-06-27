@@ -3,6 +3,7 @@ package dao;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,12 +40,18 @@ public class RelationDAO {
     }
 
     //带过滤器的扫描方法
-    public ResultScanner scan(Filter... filters) throws IOException {
+    public ResultScanner scan(Filter filter) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         Scan scan = new Scan();
-        for (Filter f : filters) {
-            scan.setFilter(f);
-        }
+        scan.setFilter(filter);
+        return table.getScanner(scan);
+    }
+
+    public ResultScanner scan(FilterList filterList, String familyName, String columnName) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        Scan scan = new Scan();
+        scan.addColumn(familyName.getBytes(), columnName.getBytes());
+        scan.setFilter(filterList);
         return table.getScanner(scan);
     }
 

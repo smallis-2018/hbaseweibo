@@ -64,6 +64,6 @@ public class ShowUser extends HttpServlet {
         request.setAttribute("infoMap", infoMap);
         request.setAttribute("followMap", followMap);
         request.setAttribute("fansMap", fansMap);
-        request.setAttribute("noMap", strangerMap);
+        request.setAttribute("strangerMap", strangerMap);
     }
 }
