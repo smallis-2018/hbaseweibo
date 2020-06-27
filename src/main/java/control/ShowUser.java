@@ -52,6 +52,21 @@ public class ShowUser extends HttpServlet {
 
                 this.request.getRequestDispatcher("home.jsp").forward(this.request,this.response);
             }
+        }else if(action.equals("follow")){
+            String followId = this.request.getParameter("followId");
+            String userId = this.request.getParameter("id");
+            if(!followId.equals("")){
+                RelationService service = new RelationService();
+                boolean c = service.doFollow(userId,followId);
+                if(c){
+                    this.request.setAttribute("check","关注成功啦");
+                }else{
+                    this.request.setAttribute("check","操作失败");
+                }
+                getMap(userId);
+
+                this.request.getRequestDispatcher("home.jsp").forward(this.request,this.response);
+            }
         }
     }
 

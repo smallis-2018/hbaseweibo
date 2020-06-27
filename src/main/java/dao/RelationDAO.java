@@ -69,14 +69,10 @@ public class RelationDAO {
         return table.get(get);
     }
 
-    public Result get(String rowKey, String[] familyNames, String[] columnNames) throws IOException {
+    public Result get(String rowKey, String familyName, String columnName) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         Get get = new Get(rowKey.getBytes());
-        if (familyNames.length != columnNames.length) {
-            return null;
-        }
-        for (int i = 0; i < familyNames.length; i++)
-            get.addColumn(familyNames[i].getBytes(), columnNames[i].getBytes());
+        get.addColumn(familyName.getBytes(),columnName.getBytes());
         return table.get(get);
     }
 

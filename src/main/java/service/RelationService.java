@@ -28,6 +28,21 @@ public class RelationService {
         crud = new RelationDAO(connection);
     }
 
+    public boolean doFollow(String id, String followId) {
+        try {
+            //取我的名字
+            String myName = getName(id);
+            //取要关注人的名字
+            String hisName = getName(followId);
+            crud.put(id,"follow",followId,hisName);
+            crud.put(followId,"fans",id,myName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
     public boolean dounfollow(String id, String followId){
         try {
             crud.delete(id,"follow",followId);
@@ -90,9 +105,11 @@ public class RelationService {
             if (result != null) {
                 Cell[] cells = result.rawCells();
                 for (Cell cell : cells) {
-                    String userId = new String(CellUtil.cloneRow(cell));
+                    String userId = new String(CellUtil.cloneQualifier(cell));
                     String userName = new String(CellUtil.cloneValue(cell));
-                    fansMap.put(userId, userName);
+                    if(!userId.equals("name")){
+                        fansMap.put(userId, userName);
+                    }
                 }
             }else {
                 fansMap.put("","");
@@ -135,9 +152,9 @@ public class RelationService {
                 for (Result result:resultScanner){
                     Cell[] cells = result.rawCells();
                     for (Cell cell : cells) {
-                        String getid = new String(CellUtil.cloneRow(cell));
+                        String getId = new String(CellUtil.cloneRow(cell));
                         String getName = new String(CellUtil.cloneValue(cell));
-                        strangerMap.put(getid,getName);
+                        strangerMap.put(getId,getName);
                     }
                 }
             }else {
@@ -147,5 +164,22 @@ public class RelationService {
             e.printStackTrace();
         }
         return strangerMap;
+    }
+
+    public String getName(String id){
+        String name = "";
+        Result r1;
+        try {
+            r1 = crud.get(id,"base","name");
+            if (r1 != null) {
+                Cell[] cells = r1.rawCells();
+                for (Cell cell : cells) {
+                    name = new String(CellUtil.cloneValue(cell));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return name;
     }
 }
